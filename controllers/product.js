@@ -5,8 +5,7 @@ var http = require('https'),
     appKey = 'c81efd66a79b6c5a58bfad182f150695',
     appSecret = '13c3374b5d3332c4b2efef4d04d47c26',
 
-    LBSessionID,
-    JSESSIONID,
+    cookies,
 
     connectToMobileFabric = function (success) {
         'use strict';
@@ -29,13 +28,7 @@ var http = require('https'),
                 setcookie = response.headers["set-cookie"];
 
                 if (setcookie) {
-                    setcookie.forEach(function (cookiestr) {
-                        if (cookiestr === 'LBSessionID') {
-                            LBSessionID = setcookie[cookiestr];
-                        } else if (cookiestr === 'JSESSIONID') {
-                            JSESSIONID = setcookie[cookiestr];
-                        }
-                    });
+                    cookies = setcookie;
                 }
 
                 //another chunk of data has been recieved, so append it to `str`
@@ -56,11 +49,7 @@ var http = require('https'),
         'use strict';
 
         connectToMobileFabric(function (authToken) {
-            var cookies = [
-                "JSESSIONID=" + JSESSIONID,
-                "LBSessionID=" + LBSessionID
-            ],
-                options = {
+            var options = {
                     host: host,
                     path: '/services/ATGRest/GetSessionConfirmationNumber',
                     method: 'POST',
@@ -94,19 +83,21 @@ module.exports.getProduct = function (req, res) {
 
     var productCode = req.params.codigo;
 
-    getSessionConfirmationNumber(function (authToken, scn) {
-        var cookies = [
-            "JSESSIONID=" + JSESSIONID,
-            "LBSessionID=" + LBSessionID
-        ],
+    connectToMobileFabric(function (authToken) {
+        var
+//        cookies = [
+//            "JSESSIONID=" + JSESSIONID,
+//            "LBSessionID=" + LBSessionID
+//        ],
             options = {
                 host: host,
                 path: '/services/ATGRest/GetProduto',
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-Kony-Authorization': authToken,
-                    'Cookie': cookies.join('; ')
+                    'Content-Type': 'application/xml',
+                    'X-Kony-Authorization': authToken
+//                    ,
+//                    'Cookie': cookies.join('; ')
                 }
             },
 
@@ -124,10 +115,7 @@ module.exports.getProduct = function (req, res) {
                 });
             },
 
-            postRequest = http.request(options, callback).write({
-                scn: scn,
-                codigo: productCode
-            }).end();
+            postRequest = http.request(options, callback).write("codigo=" + productCode).end();
     });
 };
 
@@ -137,18 +125,19 @@ module.exports.getSKU = function (req, res) {
     var sku = req.params.sku;
 
     getSessionConfirmationNumber(function (authToken, scn) {
-        var cookies = [
-            "JSESSIONID=" + JSESSIONID,
-            "LBSessionID=" + LBSessionID
-        ],
+        var
+//        cookies = [
+//            "JSESSIONID=" + JSESSIONID,
+//            "LBSessionID=" + LBSessionID
+//        ],
             options = {
                 host: host,
                 path: '/services/ATGRest/GetSku',
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-Kony-Authorization': authToken,
-                    'Cookie': cookies.join('; ')
+                    'Content-Type': 'application/xml',
+                    'X-Kony-Authorization': authToken
+                    //'Cookie': cookies.join('; ')
                 }
             },
 
@@ -166,10 +155,7 @@ module.exports.getSKU = function (req, res) {
                 });
             },
 
-            postRequest = http.request(options, callback).write({
-                scn: scn,
-                sku: sku
-            }).end();
+            postRequest = http.request(options, callback).write("sku=" + sku).end();
     });
 };
 
