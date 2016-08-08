@@ -22,8 +22,10 @@ module.exports = function (app) {
     
     app.post('/solicitacoes/:id/alterarStatus', requestController.changeStatus);
     
-    app.get('/solicitacoes/loja/:lojaId', requestController.countAlerts);
+    app.get('/solicitacoes/loja/:lojaId/totalAlertas', requestController.countAlerts);
     
-    app.get('/solicitacoes/loja/:lojaId', requestController.countStatus);
+    app.get('/solicitacoes/loja/:lojaId/alertas', requestController.getAlerts);
+    
+    app.get('/solicitacoes/loja/:lojaId/totalStatus', requestController.countStatus);
     
 };

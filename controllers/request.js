@@ -96,30 +96,28 @@ module.exports.saveProduct = function (req, res) {
         }
 
         if (doc) {
-            if (doc.status === 'Rascunho') {
-                if (doc.produtos) {
-                    for (i = doc.produtos.length - 1; i >= 0; i -= 1) {
-                        if (doc.produtos[i].codigoProduto == codigoProduto) {
-                            doc.produtos.splice(i, 1);
-                        }
+            if (doc.skus && doc.status === 'Rascunho') {
+                for (i = doc.skus.length - 1; i >= 0; i -= 1) {
+                    if (doc.skus[i].codigoProduto == codigoProduto) {
+                        doc.skus.splice(i, 1);
                     }
-                    
-                    for (i = 0; i < skus.length; i += 1) {
-                        doc.produtos.push({
-                            codigoProduto: codigoProduto,
-                            sku: skus[i].sku,
-                            quantidade: skus[i].quantidade
-                        });
-                    }
+                }
 
-                    doc.save(function (error) {
-                        if (error) {
-                            return res.status(500).json({ success: false, message: err });
-                        }
-
-                        return res.json({ success: true, data: doc });
+                for (i = 0; i < skus.length; i += 1) {
+                    doc.skus.push({
+                        codigoProduto: codigoProduto,
+                        sku: skus[i].sku,
+                        quantidade: skus[i].quantidade
                     });
                 }
+
+                doc.save(function (error) {
+                    if (error) {
+                        return res.status(500).json({ success: false, message: err });
+                    }
+
+                    return res.json({ success: true, data: doc });
+                });
             } else {
                 return res.status(500).json({ success: false, message: 'Apenas solicitações no status Rascunho podem ser editadas.' });
             }
@@ -135,17 +133,17 @@ module.exports.removeProduct = function (req, res) {
     Request.findById(req.params.id, function (err, doc) {
         var codigoProduto = req.params.produtoId,
             i;
-        
+
         if (err) {
             return res.status(500).json({ success: false, message: err });
         }
 
         if (doc) {
             if (doc.status === 'Rascunho') {
-                if (doc.produtos) {
-                    for (i = doc.produtos.length - 1; i >= 0; i -= 1) {
-                        if (doc.produtos[i].codigoProduto == codigoProduto) {
-                            doc.produtos.splice(i, 1);
+                if (doc.skus) {
+                    for (i = doc.skus.length - 1; i >= 0; i -= 1) {
+                        if (doc.skus[i].codigoProduto == codigoProduto) {
+                            doc.skus.splice(i, 1);
                         }
                     }
 
@@ -169,17 +167,104 @@ module.exports.removeProduct = function (req, res) {
 module.exports.changeStatus = function (req, res) {
     'use strict';
 
-    return res.json({ sku: 123, price: 123.34 });
+    Request.findById(req.params.id, function (err, doc) {
+        var codigoProduto = req.params.produtoId,
+            usuarioEmSeparacao = req.body.usuario,
+            nextStatus = req.body.status,
+            skus = req.body.skus,
+            i,
+            j;
+
+        if (err) {
+            return res.status(500).json({ success: false, message: err });
+        }
+
+        if (doc) {
+            if (doc.status === 'Rascunho' && nextStatus === 'Pendente') {
+                doc.status = 'Pendente';
+                doc.dataPendente = new Date();
+            } else if (doc.status === 'Pendente' && nextStatus === 'EmSeparacao') {
+                if (!usuarioEmSeparacao) {
+                    return res.status(500).json({ success: false, message: 'Usuário não foi informado.' });
+                }
+
+                doc.status = 'EmSeparacao';
+                doc.dataEmSeparacao = new Date();
+                doc.usuarioEmSeparacao = usuarioEmSeparacao;
+            } else if (doc.status === 'EmSeparacao' && nextStatus === 'Separada') {
+                doc.status = 'Separada';
+                doc.dataSeparada = new Date();
+
+                console.log(doc.skus.length);
+                console.log(skus.length);
+                for (i = 0; i < doc.skus.length; i += 1) {
+                    for (j = 0; j < skus.length; j += 1) {
+                        if (doc.skus[i].sku == skus[j].sku) {
+                            console.log('entrou');
+                            console.log(skus[j]);
+                            
+                            doc.skus[i].quantidadeSeparada = skus[j].quantidadeSeparada;
+                            break;
+                        }
+                    }
+                }
+                console.log(doc);
+
+            } else if (doc.status === 'Separada' && nextStatus === 'Finalizada') {
+                doc.status = 'Finalizada';
+                doc.dataFinalizacao = new Date();
+            } else {
+                return res.status(500).json({ success: false, message: 'Status não permitido para a solicitação.' });
+            }
+
+            doc.save(function (error) {
+                if (error) {
+                    return res.status(500).json({ success: false, message: err });
+                }
+
+                return res.json({ success: true, data: doc });
+            });
+        } else {
+            return res.status(500).json({ success: false, message: 'Solicitação não encontrada.' });
+        }
+    });
 };
 
 module.exports.countAlerts = function (req, res) {
     'use strict';
 
-    return res.json({ sku: 123, price: 123.34 });
+    return res.json({ estoque: 2, vendas: 1 });
+};
+
+module.exports.getAlerts = function (req, res) {
+    'use strict';
+
+    return res.json([
+        {
+            dataCriacao: new Date(),
+            status: 'Pendente',
+            totalProdutos: 4
+        },
+        {
+            dataCriacao: new Date(),
+            status: 'Pendente',
+            totalProdutos: 8
+        },
+        {
+            dataCriacao: new Date(),
+            status: 'EmSeparacao',
+            totalProdutos: 10
+        }
+    ]);
 };
 
 module.exports.countStatus = function (req, res) {
     'use strict';
 
-    return res.json({ sku: 123, price: 123.34 });
+    return res.json({
+        rascunho: 2,
+        pendente: 4,
+        emSeparacao: 1,
+        separada: 5
+    });
 };

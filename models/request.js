@@ -11,7 +11,7 @@ var mongoose = require('mongoose'),
             required: true,
             type: Number
         },
-        separado: Number
+        quantidadeSeparada: Number
     }),
 
     requestSchema = mongoose.Schema({
@@ -58,7 +58,7 @@ var mongoose = require('mongoose'),
             type: String,
             trim: true
         },
-        produtos: [skuSchema]
+        skus: [skuSchema]
     });
 
 requestSchema.virtual('id').get(function () {
@@ -77,7 +77,7 @@ skuSchema.set('toJSON', {
             codigoProduto: ret.codigoProduto,
             sku: ret.sku,
             quantidade: ret.quantidade,
-            separado: ret.separado
+            quantidadeSeparada: ret.quantidadeSeparada
         };
 
         return result;
@@ -102,7 +102,7 @@ requestSchema.set('toJSON', {
             dataFinalizacao: ret.dataFinalizacao,
             usuarioCriacao: ret.usuarioCriacao,
             usuarioEmSeparacao: ret.usuarioEmSeparacao,
-            produtos: ret.produtos
+            skus: ret.skus
         };
 
         return result;

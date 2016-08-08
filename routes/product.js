@@ -10,4 +10,6 @@ module.exports = function (app) {
     
     app.get('/produtos/:sku/loja/:lojaId/preco', productController.getPrice);
     
+    app.get('/produtos/loja/:lojaId/esgotados', productController.getOutOfStock);
+    
 };

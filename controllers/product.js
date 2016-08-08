@@ -16,3 +16,9 @@ module.exports.getPrice = function (req, res) {
 
     return res.json({ sku: 123, price: 123.34 });
 };
+
+module.exports.getOutOfStock = function (req, res) {
+    'use strict';
+
+    return res.json({ sku: 123, price: 123.34 });
+};
