@@ -10,7 +10,7 @@ module.exports.searchRequests = function (req, res) {
         'lojaId': req.params.lojaId,
         'dataCriacao': { '$gte': from },
         'status': { $ne: 'Finalizada' }
-    }, function (err, docs) {
+    }, null, {sort: 'prioridade'}, function (err, docs) {
         if (err) {
             return res.status(500).json({ success: false, message: err });
         }
@@ -52,7 +52,34 @@ module.exports.addRequest = function (req, res) {
 module.exports.generateAuto = function (req, res) {
     'use strict';
 
-    return res.json({ sku: 123, price: 123.34 });
+    var model = new Request({
+        "tipo": "A",
+        "prioridade": 0,
+        "status": "Rascunho",
+        "lojaId": 1,
+        "dataCriacao": new Date(),
+        "usuarioCriacao": "sistema",
+        "skus": [
+            {
+                "codigoProduto": "123",
+                "sku": "234",
+                "quantidade": 4
+            },
+            {
+                "codigoProduto": "123",
+                "sku": "678",
+                "quantidade": 1
+            }
+        ]
+    });
+
+    model.save(function (err, doc) {
+        if (err) {
+            return res.status(500).json({ success: false, message: err });
+        }
+
+        return res.json({ success: true, data: doc });
+    });
 };
 
 module.exports.deleteRequest = function (req, res) {
@@ -195,21 +222,15 @@ module.exports.changeStatus = function (req, res) {
                 doc.status = 'Separada';
                 doc.dataSeparada = new Date();
 
-                console.log(doc.skus.length);
-                console.log(skus.length);
                 for (i = 0; i < doc.skus.length; i += 1) {
                     for (j = 0; j < skus.length; j += 1) {
                         if (doc.skus[i].sku == skus[j].sku) {
-                            console.log('entrou');
-                            console.log(skus[j]);
-                            
                             doc.skus[i].quantidadeSeparada = skus[j].quantidadeSeparada;
                             break;
                         }
                     }
                 }
-                console.log(doc);
-
+                
             } else if (doc.status === 'Separada' && nextStatus === 'Finalizada') {
                 doc.status = 'Finalizada';
                 doc.dataFinalizacao = new Date();
