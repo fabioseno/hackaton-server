@@ -1,5 +1,5 @@
 /*global module, require*/
-var http = require('http'),
+var http = require('https'),
 
     host = 'vendadigitalmb.lojasrenner.com.br',
     appKey = 'c81efd66a79b6c5a58bfad182f150695',
