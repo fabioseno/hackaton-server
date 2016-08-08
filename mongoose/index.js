@@ -3,6 +3,7 @@ var mongoose = require('mongoose'),
     dbConfig = require('./config'),
     db = mongoose.connection;
 
+mongoose.Promise = global.Promise;
 mongoose.connect(dbConfig.url);
 
 db.on('error', console.error);

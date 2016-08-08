@@ -4,7 +4,7 @@ module.exports = function (app) {
     
     var requestController  = require('../controllers/request');
     
-    app.get('/solicitacoes/loja/:lojaId', requestController.searchRequest);
+    app.get('/solicitacoes/loja/:lojaId', requestController.searchRequests);
     
     app.get('/solicitacoes/:id', requestController.getRequest);
     
@@ -12,9 +12,9 @@ module.exports = function (app) {
     
     app.get('/solicitacoes/loja/:lojaId/gerar', requestController.generateAuto);
     
-    app.delete('/solicitacoes/:id', requestController.deleteRequest);
+    app.delete('/solicitacoes/limpar', requestController.deleteAll);
     
-    app.delete('/solicitacoes', requestController.deleteAll);
+    app.delete('/solicitacoes/:id', requestController.deleteRequest);
     
     app.post('/solicitacoes/:id/produtos', requestController.saveProduct);
     

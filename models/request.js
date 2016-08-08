@@ -1,9 +1,52 @@
 /*global require, module*/
 var mongoose = require('mongoose'),
 
-    requestSchema = new mongoose.Schema({
+    skuSchema = mongoose.Schema({
+        codigoProduto : String,
+        sku  : {
+            required: true,
+            type: String
+        },
+        quantidade : {
+            required: true,
+            type: Number
+        },
+        separado: Number
+    }),
+
+    requestSchema = mongoose.Schema({
+        tipo: { // automatica ou manual
+            required: true,
+            type: String
+        },
+        prioridade: {
+            required: true,
+            type: Number
+        },
+        status: {
+            required: true,
+            type: String
+        },
+        lojaId: {
+            required: true,
+            type: Number,
+            trim: true
+        },
         dataCriacao: {
             required: true,
+            type: Date,
+            default: Date.now
+        },
+        dataPendente: {
+            type: Date
+        },
+        dataEmSeparacao: {
+            type: Date
+        },
+        dataSeparada: {
+            type: Date
+        },
+        dataFinalizacao: {
             type: Date
         },
         usuarioCriacao: {
@@ -11,44 +54,59 @@ var mongoose = require('mongoose'),
             type: String,
             trim: true
         },
-        dataPendente: {
-            type: Date
-        },
-        usuarioPendente: {
-            type: String,
-            trim: true
-        },
-        dataEmSeparacao: {
-            type: Date
-        },
         usuarioEmSeparacao: {
             type: String,
             trim: true
         },
-        dataSeparada: {
-            type: Date
-        },
-        usuarioSeparada: {
-            type: String,
-            trim: true
-        },
-        dataFinalizacao: {
-            type: Date
-        },
-        usuarioFinalizacao: {
-            type: String,
-            trim: true
-        },
-        tipo: { // automatica ou manual
-            required: true,
-            type: String
-        },
-        storeId: {
-            required: true,
-            type: Number,
-            trim: true
-        },
-        _id: { type: mongoose.Schema.ObjectId }
+        produtos: [skuSchema]
     });
+
+requestSchema.virtual('id').get(function () {
+    'use strict';
+
+    return this._id.toHexString();
+});
+
+// Ensure virtual fields are serialised.
+skuSchema.set('toJSON', {
+    virtuals: true,
+    transform: function (doc, ret, options) {
+        'use strict';
+
+        var result = {
+            codigoProduto: ret.codigoProduto,
+            sku: ret.sku,
+            quantidade: ret.quantidade,
+            separado: ret.separado
+        };
+
+        return result;
+    }
+});
+
+requestSchema.set('toJSON', {
+    virtuals: true,
+    transform: function (doc, ret, options) {
+        'use strict';
+
+        var result = {
+            id: ret.id,
+            tipo: ret.tipo,
+            prioridade: ret.prioridade,
+            status: ret.status,
+            lojaId: ret.lojaId,
+            dataCriacao: ret.dataCriacao,
+            dataPendente: ret.dataPendente,
+            dataEmSeparacao: ret.dataEmSeparacao,
+            dataSeparada: ret.dataSeparada,
+            dataFinalizacao: ret.dataFinalizacao,
+            usuarioCriacao: ret.usuarioCriacao,
+            usuarioEmSeparacao: ret.usuarioEmSeparacao,
+            produtos: ret.produtos
+        };
+
+        return result;
+    }
+});
 
 module.exports = mongoose.model('Request', requestSchema);
