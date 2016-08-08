@@ -5,11 +5,14 @@ var http = require('https'),
     appKey = 'c81efd66a79b6c5a58bfad182f150695',
     appSecret = '13c3374b5d3332c4b2efef4d04d47c26',
 
+    LBSessionID,
+    JSESSIONID,
+
     connectToMobileFabric = function (success) {
         'use strict';
 
         var options = {
-            host: 'vendadigitalmb.lojasrenner.com.br',
+            host: host,
             path: '/authService/100000002/login',
             method: 'POST',
             headers: {
@@ -21,7 +24,19 @@ var http = require('https'),
         },
 
             callback = function (response) {
-                var str = '';
+                var str = '', setcookie;
+
+                setcookie = response.headers["set-cookie"];
+
+                if (setcookie) {
+                    setcookie.forEach(function (cookiestr) {
+                        if (cookiestr === 'LBSessionID') {
+                            LBSessionID = setcookie[cookiestr];
+                        } else if (cookiestr === 'JSESSIONID') {
+                            JSESSIONID = setcookie[cookiestr];
+                        }
+                    });
+                }
 
                 //another chunk of data has been recieved, so append it to `str`
                 response.on('data', function (chunk) {
@@ -41,15 +56,20 @@ var http = require('https'),
         'use strict';
 
         connectToMobileFabric(function (authToken) {
-            var options = {
-                host: host,
-                path: '/services/ATGRest/GetSessionConfirmationNumber',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-Kony-Authorization': authToken
-                }
-            },
+            var cookies = [
+                "JSESSIONID=" + JSESSIONID,
+                "LBSessionID=" + LBSessionID
+            ],
+                options = {
+                    host: host,
+                    path: '/services/ATGRest/GetSessionConfirmationNumber',
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Kony-Authorization': authToken,
+                        'Cookie': cookies.join('; ')
+                    }
+                },
 
                 callback = function (response) {
                     var str = '';
@@ -75,15 +95,20 @@ module.exports.getProduct = function (req, res) {
     var productCode = req.params.codigo;
 
     getSessionConfirmationNumber(function (authToken, scn) {
-        var options = {
-            host: host,
-            path: '/services/ATGRest/GetProduto',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Kony-Authorization': authToken
-            }
-        },
+        var cookies = [
+            "JSESSIONID=" + JSESSIONID,
+            "LBSessionID=" + LBSessionID
+        ],
+            options = {
+                host: host,
+                path: '/services/ATGRest/GetProduto',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Kony-Authorization': authToken,
+                    'Cookie': cookies.join('; ')
+                }
+            },
 
             callback = function (response) {
                 var str = '';
@@ -108,19 +133,24 @@ module.exports.getProduct = function (req, res) {
 
 module.exports.getSKU = function (req, res) {
     'use strict';
-    
+
     var sku = req.params.sku;
 
     getSessionConfirmationNumber(function (authToken, scn) {
-        var options = {
-            host: host,
-            path: '/services/ATGRest/GetSku',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Kony-Authorization': authToken
-            }
-        },
+        var cookies = [
+            "JSESSIONID=" + JSESSIONID,
+            "LBSessionID=" + LBSessionID
+        ],
+            options = {
+                host: host,
+                path: '/services/ATGRest/GetSku',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Kony-Authorization': authToken,
+                    'Cookie': cookies.join('; ')
+                }
+            },
 
             callback = function (response) {
                 var str = '';
