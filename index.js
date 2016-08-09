@@ -1,7 +1,6 @@
 /*global require, console, process*/
 var port = process.env.PORT || 3000,
     bodyParser = require('body-parser'),
-    cookieParser = require('cookie-parser'),
     express = require('express'),
     app = express();
 
@@ -11,7 +10,6 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use(bodyParser.json());
-app.use(cookieParser());
 
 // Error Handling
 app.use(function (err, req, res, next) {

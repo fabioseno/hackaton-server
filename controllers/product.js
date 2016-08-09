@@ -1,5 +1,6 @@
-/*global module, require*/
+/*global module, require, Buffer*/
 var http = require('https'),
+    querystring = require('querystring'),
 
     host = 'vendadigitalmb.lojasrenner.com.br',
     appKey = 'c81efd66a79b6c5a58bfad182f150695',
@@ -25,10 +26,16 @@ var http = require('https'),
             callback = function (response) {
                 var str = '', setcookie;
 
+                cookies = [];
+
                 setcookie = response.headers["set-cookie"];
 
                 if (setcookie) {
-                    cookies = setcookie;
+                    setcookie.forEach(
+                        function (cookiestr) {
+                            cookies.push(cookiestr);
+                        }
+                    );
                 }
 
                 //another chunk of data has been recieved, so append it to `str`
@@ -50,18 +57,29 @@ var http = require('https'),
 
         connectToMobileFabric(function (authToken) {
             var options = {
-                    host: host,
-                    path: '/services/ATGRest/GetSessionConfirmationNumber',
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-Kony-Authorization': authToken,
-                        'Cookie': cookies.join('; ')
-                    }
-                },
+                host: host,
+                path: '/services/ATGRest/GetSessionConfirmationNumber',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Kony-Authorization': authToken,
+                    'Accept': 'application/json',
+                    'Cookie': cookies.join('; ')
+                }
+            },
 
                 callback = function (response) {
-                    var str = '';
+                    var str = '', setcookie;
+
+                    setcookie = response.headers["set-cookie"];
+
+                    if (setcookie) {
+                        setcookie.forEach(
+                            function (cookiestr) {
+                                cookies.push(cookiestr);
+                            }
+                        );
+                    }
 
                     //another chunk of data has been recieved, so append it to `str`
                     response.on('data', function (chunk) {
@@ -70,7 +88,7 @@ var http = require('https'),
 
                     //the whole response has been recieved, so we just print it out here
                     response.on('end', function () {
-                        success(authToken, JSON.parse(str).sessionConfirmationNumber);
+                        success(authToken);
                     });
                 };
 
@@ -83,21 +101,16 @@ module.exports.getProduct = function (req, res) {
 
     var productCode = req.params.codigo;
 
-    connectToMobileFabric(function (authToken) {
-        var
-//        cookies = [
-//            "JSESSIONID=" + JSESSIONID,
-//            "LBSessionID=" + LBSessionID
-//        ],
+    getSessionConfirmationNumber(function (authToken) {
+        var postData = 'codigo=' + productCode,
             options = {
                 host: host,
                 path: '/services/ATGRest/GetProduto',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/xml',
-                    'X-Kony-Authorization': authToken
-//                    ,
-//                    'Cookie': cookies.join('; ')
+                    'X-Kony-Authorization': authToken,
+                    'Cookie': cookies.join('; ')
                 }
             },
 
@@ -113,9 +126,16 @@ module.exports.getProduct = function (req, res) {
                 response.on('end', function () {
                     res.send({ success: true, data: JSON.parse(str) });
                 });
+
+                response.on('error', function (error) {
+                    console.log(error);
+                });
             },
 
-            postRequest = http.request(options, callback).write("codigo=" + productCode).end();
+            postRequest = http.request(options, callback);
+
+        postRequest.write(postData);
+        postRequest.end();
     });
 };
 
@@ -124,20 +144,16 @@ module.exports.getSKU = function (req, res) {
 
     var sku = req.params.sku;
 
-    getSessionConfirmationNumber(function (authToken, scn) {
-        var
-//        cookies = [
-//            "JSESSIONID=" + JSESSIONID,
-//            "LBSessionID=" + LBSessionID
-//        ],
+    getSessionConfirmationNumber(function (authToken) {
+        var postData = 'sku=' + sku,
             options = {
                 host: host,
                 path: '/services/ATGRest/GetSku',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/xml',
-                    'X-Kony-Authorization': authToken
-                    //'Cookie': cookies.join('; ')
+                    'X-Kony-Authorization': authToken,
+                    'Cookie': cookies.join('; ')
                 }
             },
 
@@ -155,7 +171,11 @@ module.exports.getSKU = function (req, res) {
                 });
             },
 
-            postRequest = http.request(options, callback).write("sku=" + sku).end();
+            postRequest = http.request(options, callback);
+
+        postRequest.write(postData);
+
+        postRequest.end();
     });
 };
 
