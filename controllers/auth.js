@@ -13,22 +13,28 @@ module.exports.login = function (req, res) {
     if (req.body.chapa === req.body.senha) {
         switch (req.body.chapa) {
         case '001':
-            user.data = 'Fábio Akira Yoshida';
+            user.data.nome = 'Fábio Akira Yoshida';
+            user.data.lojaId: '0126';
             break;
         case '002':
-            user.data = 'Ana Paula Franciosi';
+            user.data.nome = 'Ana Paula Franciosi';
+            user.data.lojaId: '0126';
             break;
         case '003':
-            user.data = 'Diógines Goldoni';
+            user.data.nome = 'Diógines Goldoni';
+            user.data.lojaId: '0015';
             break;
         case '004':
-            user.data = 'Felipe Foliatti';
+            user.data.nome = 'Felipe Foliatti';
+            user.data.lojaId: '0015';
             break;
         case '005':
-            user.data = 'Bruno XPTO';
+            user.data.nome = 'Bruno XPTO';
+            user.data.lojaId: '0001';
             break;
         case '006':
-            user.data = 'Cláudio Cezar';
+            user.data.nome = 'Cláudio Cezar';
+            user.data.lojaId: '0001';
             break;
         default:
             return res.status(401).json({ success: false, message: 'Usuário ou senha inválidos!' });
