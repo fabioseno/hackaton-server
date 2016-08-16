@@ -56,20 +56,23 @@ module.exports.generateAuto = function (req, res) {
         "tipo": "A",
         "prioridade": 0,
         "status": "Rascunho",
-        "lojaId": 1,
+        "lojaId": req.params.lojaId,
         "dataCriacao": new Date(),
         "usuarioCriacao": "sistema",
         "grupo": "F/Marfinno",
+        "totalProdutos": 2,
         "skus": [
             {
                 "codigoProduto": "123",
                 "sku": "234",
-                "quantidade": 4
+                "quantidade": 4,
+                "grupo": "F/Marfinno"
             },
             {
                 "codigoProduto": "123",
                 "sku": "678",
-                "quantidade": 1
+                "quantidade": 1,
+                "grupo": "F/Marfinno"
             }
         ]
     });
