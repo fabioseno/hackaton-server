@@ -56,7 +56,7 @@ module.exports.generateAuto = function (req, res) {
         "tipo": "A",
         "prioridade": 0,
         "status": "Rascunho",
-        "lojaId": req.params.lojaId,
+        "lojaId": req.params.lojaId.toString(),
         "dataCriacao": new Date(),
         "usuarioCriacao": "sistema",
         "grupo": "F/Marfinno",
@@ -133,7 +133,7 @@ module.exports.saveProduct = function (req, res) {
         if (doc) {
             if (doc.skus && doc.status === 'Rascunho') {
                 for (i = doc.skus.length - 1; i >= 0; i -= 1) {
-                    if (doc.skus[i].codigoProduto == codigoProduto) {
+                    if (doc.skus[i].codigoProduto === codigoProduto) {
                         doc.skus.splice(i, 1);
                     } else {
                         totalProdutos += 1;
@@ -195,7 +195,7 @@ module.exports.removeProduct = function (req, res) {
             if (doc.status === 'Rascunho') {
                 if (doc.skus) {
                     for (i = doc.skus.length - 1; i >= 0; i -= 1) {
-                        if (doc.skus[i].codigoProduto == codigoProduto) {
+                        if (doc.skus[i].codigoProduto === codigoProduto) {
                             doc.skus.splice(i, 1);
                         }
                     }
@@ -250,7 +250,7 @@ module.exports.changeStatus = function (req, res) {
 
                 for (i = 0; i < doc.skus.length; i += 1) {
                     for (j = 0; j < skus.length; j += 1) {
-                        if (doc.skus[i].sku == skus[j].sku) {
+                        if (doc.skus[i].sku === skus[j].sku) {
                             doc.skus[i].quantidadeSeparada = skus[j].quantidadeSeparada;
                             break;
                         }

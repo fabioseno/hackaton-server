@@ -29,7 +29,7 @@ var mongoose = require('mongoose'),
         },
         lojaId: {
             required: true,
-            type: Number,
+            type: String,
             trim: true
         },
         dataCriacao: {
