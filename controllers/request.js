@@ -55,7 +55,7 @@ module.exports.generateAuto = function (req, res) {
     var model = new Request({
         "tipo": "A",
         "prioridade": 0,
-        "status": "Rascunho",
+        "status": "Pendente",
         "lojaId": req.params.lojaId.toString(),
         "dataCriacao": new Date(),
         "usuarioCriacao": "sistema",
