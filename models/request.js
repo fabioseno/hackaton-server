@@ -114,6 +114,19 @@ requestSchema.set('toJSON', {
             skus: ret.skus
         };
 
+        switch (result.status) {
+        case 'Rascunho':
+            result.dataExibicao = result.dataCriacao;
+            break;
+        case 'Pendente':
+        case 'EmSeparacao':
+            result.dataExibicao = result.dataEmSeparacao;
+            break;
+        case 'Separada':
+            result.dataExibicao = result.dataSeparada;
+            break;
+        }
+
         return result;
     }
 });

@@ -14,7 +14,7 @@ module.exports.searchRequests = function (req, res) {
         if (err) {
             return res.status(500).json({ success: false, message: err });
         }
-
+        
         return res.json({ success: true, data: docs });
     });
 
