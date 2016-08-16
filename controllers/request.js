@@ -1,4 +1,4 @@
-/*global module, require*/
+/*global module, require, Object*/
 var Request = require('../models/request');
 
 module.exports.searchRequests = function (req, res) {
@@ -59,6 +59,7 @@ module.exports.generateAuto = function (req, res) {
         "lojaId": 1,
         "dataCriacao": new Date(),
         "usuarioCriacao": "sistema",
+        "grupo": "F/Marfinno",
         "skus": [
             {
                 "codigoProduto": "123",
@@ -116,6 +117,10 @@ module.exports.saveProduct = function (req, res) {
     Request.findById(req.params.id, function (err, doc) {
         var codigoProduto = req.body.codigoProduto,
             skus = req.body.skus || [],
+            totalProdutos = 0,
+            requestGroup,
+            groups = {},
+            keys,
             i;
 
         if (err) {
@@ -127,6 +132,8 @@ module.exports.saveProduct = function (req, res) {
                 for (i = doc.skus.length - 1; i >= 0; i -= 1) {
                     if (doc.skus[i].codigoProduto == codigoProduto) {
                         doc.skus.splice(i, 1);
+                    } else {
+                        totalProdutos += 1;
                     }
                 }
 
@@ -136,6 +143,22 @@ module.exports.saveProduct = function (req, res) {
                         sku: skus[i].sku,
                         quantidade: skus[i].quantidade
                     });
+
+                    groups[skus[i].grupo] = true;
+                    
+                    totalProdutos += 1;
+                }
+                
+                doc.totalProdutos = totalProdutos;
+
+                if (Object.keys(groups).length > 1) {
+                    doc.grupo = 'Vários';
+                } else {
+                    keys = Object.keys(groups);
+
+                    if (keys.length === 1) {
+                        doc.grupo = groups[keys[0]];
+                    }
                 }
 
                 doc.save(function (error) {
@@ -230,7 +253,7 @@ module.exports.changeStatus = function (req, res) {
                         }
                     }
                 }
-                
+
             } else if (doc.status === 'Separada' && nextStatus === 'Finalizada') {
                 doc.status = 'Finalizada';
                 doc.dataFinalizacao = new Date();

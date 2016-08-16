@@ -58,6 +58,13 @@ var mongoose = require('mongoose'),
             type: String,
             trim: true
         },
+        grupo: {
+            type: String,
+            trim: true
+        },
+        totalProdutos: {
+            type: Number
+        },
         skus: [skuSchema]
     });
 
@@ -102,6 +109,8 @@ requestSchema.set('toJSON', {
             dataFinalizacao: ret.dataFinalizacao,
             usuarioCriacao: ret.usuarioCriacao,
             usuarioEmSeparacao: ret.usuarioEmSeparacao,
+            grupo: ret.grupo,
+            totalProdutos: ret.totalProdutos,
             skus: ret.skus
         };
 
